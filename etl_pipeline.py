@@ -2,6 +2,8 @@ import os
 from dotenv import load_dotenv
 
 import requests
+import json
+import pandas as pd
 
 class ETLStockMarket:
     """
@@ -27,6 +29,27 @@ class ETLStockMarket:
 
         data_json = response.json()
         print("data_json", type(data_json), data_json)
+
+        # print(data_json['Meta Data'])
+        # print(data_json['Time Series (Daily)'])
+
+        df_data = pd.DataFrame(data_json['Time Series (Daily)'])
+        print("df_data", type(df_data),'\n' , df_data)
+
+        df = df_data.copy()
+        df = df.transpose()
+        print("df", type(df),'\n' , df)
+
+        df['last_refreshed'] = data_json['Meta Data']['3. Last Refreshed']
+        df['symbol'] = data_json['Meta Data']['2. Symbol']
+        df['time_zone'] = data_json['Meta Data']['5. Time Zone']
+        print("df", type(df),'\n' , df.dtypes, '\n', df)
+
+        print("df.columns", type(df.columns), '\n', df.columns)
+        df.columns = df.columns.str.split().str[1]
+        print("df.columns", type(df.columns), '\n', df.columns)
+
+
 
        
 
