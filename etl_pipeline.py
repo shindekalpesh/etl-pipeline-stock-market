@@ -30,3 +30,7 @@ class ETLStockMarket:
 
        
 
+
+if __name__ == '__main__':
+    etl = ETLStockMarket("IBM")
+    etl.extract()
