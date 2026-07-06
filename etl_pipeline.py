@@ -7,3 +7,7 @@ class ETLStockMarket:
     """
     def __init__(self, company_name):
         self.company_name = company_name
+
+    def __str__(self):
+        return f"company_name: {self.company_name}"
+        
