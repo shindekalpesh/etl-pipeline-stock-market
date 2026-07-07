@@ -5,6 +5,8 @@ import requests
 import json
 import pandas as pd
 
+from sqlalchemy import create_engine
+
 class ETLStockMarket:
     """
     Extracts, Transforms and Loads the stock market data of a given company.
@@ -18,8 +20,12 @@ class ETLStockMarket:
     def extract(self):
         load_dotenv()
         API_KEY = os.getenv('API_KEY')
+        DATABASE_URL = os.getenv('DATABASE_URL')
+        
+        engine = create_engine(DATABASE_URL)
 
-        print("self.company_name", type(self.company_name), self.company_name)
+        # print("DATABASE_URL", type(DATABASE_URL), DATABASE_URL)
+        # print("self.company_name", type(self.company_name), self.company_name)
 
         # url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={self.company_name}&apikey={API_KEY}"
         # print("url", type(url), url)
@@ -106,6 +112,12 @@ class ETLStockMarket:
 
         print("df", type(df),'\n' , df.dtypes, '\n', df)
         
+        try:
+            df.to_sql(name='bronze_tbl', con=engine, if_exists='append', index=False, chunksize=10)
+            print(f"Data added successfully to the bronze layer.")
+
+        except Exception as e:
+            print(f"Error occured: {e}")
 
 
 if __name__ == '__main__':
