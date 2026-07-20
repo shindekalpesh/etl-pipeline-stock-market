@@ -153,6 +153,34 @@ class ETLStockMarket:
         except Exception as e:
             print(f"Error occured: {e}")
 
+    
+    def transform(self):
+        engine = self.db_connection()
+        bronze_df = pd.read_sql("SELECT * FROM bronze_tbl", con=engine)
+        
+        print("TRANSFORM LAYER -1 > bronze_df", type(bronze_df),'\n' , bronze_df.dtypes, '\n', bronze_df)
+        silver_df = pd.DataFrame()
+
+        # bronze_df['id'] = bronze_df['id']
+        silver_df['stock_date'] = pd.to_datetime(bronze_df['stock_date'],format="%Y-%m-%d",errors='coerce').dt.date
+        silver_df['open'] = pd.to_numeric(bronze_df['open'],errors='coerce')
+        silver_df['high'] = pd.to_numeric(bronze_df['high'],errors='coerce')
+        silver_df['low'] = pd.to_numeric(bronze_df['low'],errors='coerce')
+        silver_df['close'] = pd.to_numeric(bronze_df['close'],errors='coerce')
+        silver_df['volume'] = pd.to_numeric(bronze_df['volume'],errors='coerce')
+        silver_df['last_refreshed'] = pd.to_datetime(bronze_df['last_refreshed'],format="%Y-%m-%d",errors='coerce').dt.date
+        silver_df['symbol'] = bronze_df['symbol']
+        silver_df['time_zone'] = bronze_df['time_zone']
+        silver_df['added_on'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")                  # to be added
+
+        print("TRANSFORM LAYER - 2 > silver_df", type(silver_df),'\n' , silver_df.dtypes, '\n', silver_df)
+
+        try:
+            silver_df.to_sql(name='silver_tbl', con=engine, if_exists='append', index=False, chunksize=10)
+            print(f"Data added successfully to the silver layer.")
+
+        except Exception as e:
+            print(f"Error occured: {e}")
 
 if __name__ == '__main__':
     etl = ETLStockMarket("IBM")
