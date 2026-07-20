@@ -5,7 +5,9 @@ import requests
 import json
 import pandas as pd
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, Numeric, DateTime, Date
+
+from datetime import datetime
 
 class ETLStockMarket:
     """
@@ -16,15 +18,47 @@ class ETLStockMarket:
 
     def __str__(self):
         return f"company_name: {self.company_name}"
+
+    @staticmethod
+    def db_connection():
+        # DATABASE_URL = os.getenv('DATABASE_URL')
+        # DATABASE_URL="mysql://root:root1234@127.0.0.1:3306/bronze"
+        load_dotenv()
+
+        DB_CLIENT = os.getenv('DB_CLIENT')
+        DB_USERNAME = os.getenv('DB_USERNAME')
+        DB_PASSWORD = os.getenv('DB_PASSWORD')
+        DB_HOSTNAME = os.getenv('DB_HOSTNAME')
+        DB_PORT = os.getenv('DB_PORT')
+        DB_NAME = os.getenv('DB_NAME')
+        
+        # print("DB_CLIENT", type(DB_CLIENT), DB_CLIENT)
+        # print("DB_USERNAME", type(DB_USERNAME), DB_USERNAME)
+        # print("DB_PASSWORD", type(DB_PASSWORD), DB_PASSWORD)
+        # print("DB_HOSTNAME", type(DB_HOSTNAME), DB_HOSTNAME)
+        # print("DB_PORT", type(DB_PORT), DB_PORT)
+        # print("DB_NAME", type(DB_NAME), DB_NAME)
+        
+        DATABASE_URL = f"{DB_CLIENT}://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOSTNAME}:{DB_PORT}/{DB_NAME}"
+
+
+        engine = create_engine(DATABASE_URL)
+        print("engine", type(engine), engine)
+
+        return engine
         
     def extract(self):
-        load_dotenv()
         API_KEY = os.getenv('API_KEY')
-        DATABASE_URL = os.getenv('DATABASE_URL')
-        
-        engine = create_engine(DATABASE_URL)
-
+        # DATABASE_URL = os.getenv('DATABASE_URL')
         # print("DATABASE_URL", type(DATABASE_URL), DATABASE_URL)
+        
+        # engine = create_engine(DATABASE_URL)
+        # print("engine", type(engine), engine)
+
+        engine = self.db_connection()
+        print("engine", type(engine), engine)
+
+        # breakpoint()
         # print("self.company_name", type(self.company_name), self.company_name)
 
         # url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={self.company_name}&apikey={API_KEY}"
@@ -123,3 +157,4 @@ class ETLStockMarket:
 if __name__ == '__main__':
     etl = ETLStockMarket("IBM")
     etl.extract()
+    etl.transform()
