@@ -9,6 +9,10 @@ from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, 
 
 from datetime import datetime
 
+import schedule
+
+import time
+
 class ETLStockMarket:
     """
     Extracts, Transforms and Loads the stock market data of a given company.
@@ -203,4 +207,10 @@ if __name__ == '__main__':
     # etl.transform()
     # etl.load()
 
-    etl.run()               # Runs once immediately
+    # etl.run()               # Runs once immediately
+
+    schedule.every(5).minutes.do(etl.run)
+
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
