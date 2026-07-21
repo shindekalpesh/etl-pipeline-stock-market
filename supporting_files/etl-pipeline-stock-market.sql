@@ -46,3 +46,18 @@ FROM silver_tbl;
 TRUNCATE silver_tbl;
 
 COMMIT;
+
+SHOW CREATE TABLE silver_tbl;
+
+CREATE TABLE gold_tbl AS SELECT * FROM silver_tbl;
+
+SELECT * 
+FROM gold_tbl;
+
+TRUNCATE gold_tbl;
+
+-- DROP TABLE gold_tbl;
+
+ALTER TABLE gold_tbl
+-- ADD COLUMN close_rolling_7d_sum NUMERIC;
+ADD COLUMN close_rolling_7d_mean NUMERIC;

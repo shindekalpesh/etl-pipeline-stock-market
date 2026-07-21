@@ -182,7 +182,31 @@ class ETLStockMarket:
         except Exception as e:
             print(f"Error occured: {e}")
 
+
+    def load(self):
+        engine = self.db_connection()
+        silver_df = pd.read_sql("SELECT * FROM silver_tbl", con=engine)
+
+        # gold_df = pd.DataFrame()
+
+        gold_df = silver_df
+
+        # Calculate 7-day rolling mean
+        gold_df['close_rolling_7d_mean'] = silver_df['close'].rolling(window=7).mean()
+
+        # Calculate 7-day rolling sum
+        gold_df['close_rolling_7d_sum'] = silver_df['close'].rolling(window=7).sum()
+
+
+        try:
+            gold_df.to_sql(name="gold_tbl", con=engine, if_exists='append', index=False, chunksize=100)
+            print(f"Data added successfully to the silver layer.")
+
+        except Exception as e:
+            print(f"Error occured: {e}")
+
 if __name__ == '__main__':
     etl = ETLStockMarket("IBM")
     etl.extract()
     etl.transform()
+    etl.load()
